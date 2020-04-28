@@ -3,22 +3,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
-
-const blogSchema = mongoose.Schema({
-  title: String,
-  author: String,
-  url: String,
-  likes: Number
-})
-
-blogSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString()
-    delete returnedObject._id
-    delete returnedObject.__v
-  }
-})
-const Blog = mongoose.model('Blog', blogSchema)
+const Blog = require('./models/blog')
 
 console.log('connecting to mongodb')
 const mongoUrl = 'mongodb+srv://madibentl:rawDen1m@cluster0-wh8e2.mongodb.net/test?retryWrites=true&w=majority'
