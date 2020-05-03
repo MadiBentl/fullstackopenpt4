@@ -41,10 +41,10 @@ describe('api requests', () => {
 
     let response = await listHelper.blogsInDb()
     expect(response).toHaveLength(listHelper.listWithMultipleBlogs.length + 1)
-    console.log(response)
     const contents = response.map(r => r.title)
     expect(contents).toContain(newBlog.title)
   })
+
   test('verifies that if likes are missing, it will be added with value of 0', async () => {
     const newBlog = {
       title: 'Gnarly Hands',
@@ -60,8 +60,20 @@ describe('api requests', () => {
 
     let response = await listHelper.blogsInDb()
     expect(response).toHaveLength(listHelper.listWithMultipleBlogs.length + 1)
-    console.log(response[response.length -1 ])
     expect(response[response.length -1 ].likes).toEqual(0)
+  })
+
+  test('url and title are required fields', async () => {
+    const newBlog = {
+      author: 'Baby Monkey'
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+
+    //const totalBlogs = listHelper.toblogsInDb()
+  //  expect(totalBlogs).toHaveLength(listHelper.listWithMultipleBlogs)
   })
 })
 
