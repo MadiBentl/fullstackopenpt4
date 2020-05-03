@@ -1,15 +1,9 @@
-const http = require('http')
-const express = require('express')
+const config = require('./utils/config.js')
 const app = require('./app')
+const http = require('http')
 
-const mongoose = require('mongoose')
+const server = http.createServer(app)
 
-console.log('connecting to mongodb')
-const mongoUrl = 'mongodb+srv://madibentl:rawDen1m@cluster0-wh8e2.mongodb.net/test?retryWrites=true&w=majority'
-mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true })
-
-
-const PORT = 3003
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+server.listen(config.PORT, () => {
+  console.log(`Server running on port ${config.PORT}`)
 })
