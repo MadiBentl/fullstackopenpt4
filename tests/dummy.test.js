@@ -72,8 +72,29 @@ describe('api requests', () => {
       .send(newBlog)
       .expect(400)
 
-    //const totalBlogs = listHelper.toblogsInDb()
-  //  expect(totalBlogs).toHaveLength(listHelper.listWithMultipleBlogs)
+  })
+
+  test('can delete a blog', async () => {
+    const allBlogs = await listHelper.blogsInDb()
+    const blogToDelete = allBlogs[0]
+
+    console.log(blogToDelete)
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+  })
+
+  test('can update a blog', async() => {
+    const allBlogs = await listHelper.blogsInDb()
+    const blogToUpdate = allBlogs[0]
+    const newContent = { likes: 700 }
+
+    const res = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(newContent)
+      .expect(200)
+
+    expect(res.body.likes).toEqual(700)
   })
 })
 

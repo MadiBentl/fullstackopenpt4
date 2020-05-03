@@ -9,11 +9,11 @@ const requestLogger = (req, res, next) => {
 }
 
 const errorHandler = (error, req, res, next) => {
-  console.error('Ohhh noooo', error.message)
   if (error.name === 'ValidationError'){
-    console.log('error')
     return res.status(400).json({ error: 'validation error' })
-  }
+  }else[
+    console.log('err', error)
+  ]
   next()
 }
 
