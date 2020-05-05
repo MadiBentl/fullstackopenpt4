@@ -1,4 +1,18 @@
 const Blog = require('../models/blog')
+const User = require('../models/user')
+
+const initialUsers = [
+  {
+    name: 'Monkey St James',
+    username: 'HolyMonkey',
+    passwordHash: 'password'
+  },
+  {
+    name: 'Baby Monkey',
+    username: 'googoo',
+    passwordHash: 'password'
+  }
+]
 
 const listWithOneBlog = [
   {
@@ -67,6 +81,11 @@ const blogsInDb = async () => {
   return blogs.map(blog => blog.toJSON())
 }
 
+const usersInDb = async () => {
+  const users = await User.find({})
+  return users.map(user => user.toJSON())
+}
+
 const dummy = () => {
   return 1
 }
@@ -126,4 +145,4 @@ const mostLikes = blogs => {
   return maxLikes
 }
 
-module.exports = { dummy, totalLikes, favouriteArticle, mostBlogs, blogsInDb, mostLikes, listWithOneBlog, listWithMultipleBlogs }
+module.exports = { initialUsers, dummy, totalLikes, favouriteArticle, mostBlogs, blogsInDb, usersInDb, mostLikes, listWithOneBlog, listWithMultipleBlogs }

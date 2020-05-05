@@ -9,11 +9,14 @@ const requestLogger = (req, res, next) => {
 }
 
 const errorHandler = (error, req, res, next) => {
+  console.log(error)
   if (error.name === 'ValidationError'){
     return res.status(400).json({ error: 'validation error' })
-  }else[
+  } else if (error.message === 'password too short') {
+    res.status(400).json({ error: error.message })
+  } else{
     console.log('err', error)
-  ]
+  }
   next()
 }
 

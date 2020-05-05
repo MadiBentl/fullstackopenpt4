@@ -4,12 +4,18 @@ const app = require('../app.js')
 const api = supertest(app)
 const listHelper = require('../utils/list_helper')
 const Blog = require('../models/blog.js')
+const User = require('../models/user.js')
 
 beforeEach( async () => {
   await Blog.deleteMany({})
   const blogsObject = listHelper.listWithMultipleBlogs.map(blog => new Blog(blog))
   const blogPromise = blogsObject.map(blog => blog.save())
   await Promise.all(blogPromise)
+
+  await User.deleteMany({})
+  const usersObject = listHelper.initialUsers.map(user => new User(user))
+  const userPromise = usersObject.map(user => user.save())
+  await Promise.all(userPromise)
 
 })
 describe('api requests', () => {
@@ -95,6 +101,19 @@ describe('api requests', () => {
       .expect(200)
 
     expect(res.body.likes).toEqual(700)
+  })
+})
+
+describe('user api requests', () => {
+  test('returns a list of users', async () => {
+    await api
+      .get('/api/users')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const users = await listHelper.usersInDb()
+
+    expect(users).toHaveLength(listHelper.initialUsers.length)
   })
 })
 
