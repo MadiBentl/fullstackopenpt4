@@ -8,9 +8,18 @@ const requestLogger = (req, res, next) => {
   next()
 }
 
+const tokenExtractor = (request, response, next) => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    //return authorization.substring(7)
+    return response.json(authorization.substring(7))
+  }
+  next()
+}
+
 const errorHandler = (error, req, res, next) => {
-  console.log(error)
-  if (error.name === 'ValidationError'){
+  console.log('errorrrr', error)
+  if (error.name === 'ValidationError' || error.message === 'ValidationError'){
     return res.status(400).json({ error: 'validation error' })
   } else if (error.message === 'password too short') {
     res.status(400).json({ error: error.message })
@@ -24,4 +33,4 @@ const unknownEndpoint = (req, res) => {
   res.status(404).json({ error: 'unknown endpoint' })
 }
 
-module.exports = { errorHandler, unknownEndpoint, requestLogger }
+module.exports = { errorHandler, unknownEndpoint, requestLogger, tokenExtractor }

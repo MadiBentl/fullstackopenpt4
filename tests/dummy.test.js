@@ -17,6 +17,8 @@ beforeEach( async () => {
   const userPromise = usersObject.map(user => user.save())
   await Promise.all(userPromise)
 
+
+
 })
 describe('api requests', () => {
   test('returns api get request', async() => {
@@ -114,6 +116,37 @@ describe('user api requests', () => {
     const users = await listHelper.usersInDb()
 
     expect(users).toHaveLength(listHelper.initialUsers.length)
+  })
+
+  test('returns a 400 error for incorrect requests', async () => {
+    const incompleteUser = new User({
+      name: 'John-o'
+    })
+
+    await api
+      .post('/api/users')
+      .send(incompleteUser)
+      .expect(400)
+
+    const users = await listHelper.usersInDb()
+    expect(users).toHaveLength(listHelper.initialUsers.length)
+  })
+
+  test('adds a new user to the db', async () => {
+    const usersAtStart = await listHelper.usersInDb()
+    const newUser = ({
+      name: 'Monkey Smith',
+      username: 'mistermonkey666',
+      password: '1213'
+    })
+    console.log(newUser)
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(200)
+
+    const users = await listHelper.usersInDb()
+    expect(users).toHaveLength(usersAtStart.length + 1)
   })
 })
 
