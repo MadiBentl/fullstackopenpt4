@@ -13,7 +13,7 @@ blogsRouter.get('/', async (request, response) => {
 blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body)
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  console.log(blog)
+
   if (!request.token || !decodedToken){
     return response.status(401).json({ error: 'token missing' })
   }
@@ -25,12 +25,19 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndRemove(request.params.id)
-  response.status(204).end()
+  const blog = await Blog.findById(request.params.id)
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  console.log(blog, decodedToken)
+  if (!request.token || !decodedToken){
+    return response.status(401).json({ error: 'not logged in / missing token' })
+  }
+  if ( blog.user.toString() === decodedToken.id.toString() ){
+    await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).json(blog)
+  }
 })
 
 blogsRouter.put('/:id', async (request, response) => {
-  console.log('bodh', request.body)
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, request.body, { new: true })
   console.log('updated', updatedBlog)
   response.json(updatedBlog.toJSON())

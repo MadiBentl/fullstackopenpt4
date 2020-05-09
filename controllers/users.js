@@ -9,6 +9,7 @@ userRouter.get('/', async(req, res) => {
 
 userRouter.post('/', async(req, res) => {
   const body = req.body
+  console.log(body)
   const saltRounds = 10
   if (body.password === undefined || body.username === undefined){
     console.log(body, body.password, body.username)
@@ -23,7 +24,7 @@ userRouter.post('/', async(req, res) => {
     username: body.username,
     passwordHash
   })
-
+  console.log(newUser)
   const savedUser = await newUser.save()
 
   res.json(savedUser)

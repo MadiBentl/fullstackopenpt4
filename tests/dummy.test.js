@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app.js')
 const api = supertest(app)
+const bcrypt = require('bcrypt')
 const listHelper = require('../utils/list_helper')
 const Blog = require('../models/blog.js')
 const User = require('../models/user.js')
@@ -13,11 +14,21 @@ beforeEach( async () => {
   await Promise.all(blogPromise)
 
   await User.deleteMany({})
-  const usersObject = listHelper.initialUsers.map(user => new User(user))
+
+  const usersObject = await Promise.all(
+    listHelper.initialUsers.map(async user => {
+      const passwordHash = await bcrypt.hash(user.password, 10)
+      const newUser = {
+        user: user.name,
+        username: user.username,
+        _id: user.id,
+        passwordHash
+      }
+      return await new User(newUser)
+    })
+  )
   const userPromise = usersObject.map(user => user.save())
   await Promise.all(userPromise)
-
-
 
 })
 describe('api requests', () => {
@@ -34,16 +45,19 @@ describe('api requests', () => {
   })
 
   test('posts a new blog', async () => {
+    const loggedIn = await api.post('/api/login').send(listHelper.initialUsers[0])
+    const token = 'Bearer ' + loggedIn.body.token
     const newBlog = {
       title: 'Gnarly Hands',
       author: 'Baby Monkey',
       url: 'https://monkeyhands.com/',
       likes: 11
     }
-
+    console.log(token)
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', token)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
@@ -54,6 +68,9 @@ describe('api requests', () => {
   })
 
   test('verifies that if likes are missing, it will be added with value of 0', async () => {
+    const loggedIn = await api.post('/api/login').send(listHelper.initialUsers[0])
+    const token = 'Bearer ' + loggedIn.body.token
+
     const newBlog = {
       title: 'Gnarly Hands',
       author: 'Baby Monkey',
@@ -62,6 +79,7 @@ describe('api requests', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', token)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -72,23 +90,29 @@ describe('api requests', () => {
   })
 
   test('url and title are required fields', async () => {
+    const loggedIn = await api.post('/api/login').send(listHelper.initialUsers[0])
+    const token = 'Bearer ' + loggedIn.body.token
+
     const newBlog = {
       author: 'Baby Monkey'
     }
     await api
       .post('/api/blogs')
+      .set('Authorization', token)
       .send(newBlog)
       .expect(400)
 
   })
 
   test('can delete a blog', async () => {
+    const loggedIn = await api.post('/api/login').send(listHelper.initialUsers[0])
+    const token = 'Bearer ' + loggedIn.body.token
     const allBlogs = await listHelper.blogsInDb()
     const blogToDelete = allBlogs[0]
 
-    console.log(blogToDelete)
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', token)
       .expect(204)
   })
 
@@ -139,7 +163,6 @@ describe('user api requests', () => {
       username: 'mistermonkey666',
       password: '1213'
     })
-    console.log(newUser)
     await api
       .post('/api/users')
       .send(newUser)
