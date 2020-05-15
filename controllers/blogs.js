@@ -3,22 +3,19 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { name: 1, username: 1 })
   response.json(blogs.map(blog => blog.toJSON()))
-
 })
 
 blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body)
-  console.log(blog)
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
   if (!request.token || !decodedToken){
     return response.status(401).json({ error: 'token missing' })
   }
-  const user = await User.findOne({})
+  const user = await User.findOne({ username: decodedToken.user })
   blog.date = new Date()
   blog.user = user._id
   const savedBlog = await blog.save()
@@ -28,7 +25,6 @@ blogsRouter.post('/', async (request, response) => {
 blogsRouter.delete('/:id', async (request, response) => {
   const blog = await Blog.findById(request.params.id)
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  console.log(blog, decodedToken)
   if (!request.token || !decodedToken){
     return response.status(401).json({ error: 'not logged in / missing token' })
   }
