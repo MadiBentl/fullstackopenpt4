@@ -8,6 +8,10 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs.map(blog => blog.toJSON()))
 })
 
+blogsRouter.get('/:id', async (req, res) => {
+  const blog = await Blog.findById(req.params.id)
+  res.json(blog.toJSON())
+})
 blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body)
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
@@ -35,6 +39,9 @@ blogsRouter.delete('/:id', async (request, response) => {
 })
 
 blogsRouter.put('/:id', async (request, response) => {
+  if (request.body.user.username){
+    request.body.user = request.body.username
+  }
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, request.body, { new: true })
   console.log('updated', updatedBlog)
   response.json(updatedBlog.toJSON())
