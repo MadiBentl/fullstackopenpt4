@@ -16,11 +16,8 @@ blogsRouter.post('/:id/comments', async (request, response) => {
   const comment = request.body.content
 
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, comment, { new: true })
-  if (updatedBlog.comment){
-    updatedBlog.comment = updatedBlog.comment.concat(comment)
-  } else {
-    updatedBlog.comment = [comment]
-  }
+  updatedBlog.comments = updatedBlog.comments.concat(comment)
+  console.log(updatedBlog)
   response.json(updatedBlog.toJSON())
 })
 blogsRouter.post('/', async (request, response) => {
