@@ -12,6 +12,17 @@ blogsRouter.get('/:id', async (req, res) => {
   const blog = await Blog.findById(req.params.id)
   res.json(blog.toJSON())
 })
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const comment = request.body.content
+
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, comment, { new: true })
+  if (updatedBlog.comment){
+    updatedBlog.comment = updatedBlog.comment.concat(comment)
+  } else {
+    updatedBlog.comment = [comment]
+  }
+  response.json(updatedBlog.toJSON())
+})
 blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body)
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
