@@ -8,6 +8,8 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const app = express()
 const middleware = require('./utils/middleware')
+const bodyParser = require('body-parser')
+
 
 const mongoUrl = config.MONGODB_URI
 console.log(`connecting to mongodb ${mongoUrl}`)
@@ -18,6 +20,7 @@ app.use(cors())
 app.use(express.json())
 app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor)
+app.use(bodyParser.json({ type: '*/*' }))
 app.use('/api/blogs', blogsRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/users', userRouter)
